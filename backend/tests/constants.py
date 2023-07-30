@@ -1,8 +1,11 @@
 from recipes.models import (
-    Unit,
-    Ingredient,
-    Recipe,
     Tag
+)
+
+IMAGE = (
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywa"
+    "AAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQV"
+    "QImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=="
 )
 
 TAG_DATA = {
@@ -26,17 +29,12 @@ RECIPE_DATA = {
             "id": 1,
             "amount": 10
         },
-        {
-            "id": 2,
-            "amount": 5
-        }
     ],
     "tags": [1],
-    "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
-    "name": "string25",
-    "text": "string",
+
+    "name": "test_name",
     "cooking_time": 1,
-    "description": "test"
+    "description": "test_description"
 }
 
 IMAGE_NAME = 'small.gif'
@@ -50,6 +48,6 @@ SMALL_GIF = (
     b'\x0A\x00\x3B'
 )
 
+
 def create_tag(data):
     return Tag.objects.create(**data)
-

@@ -88,7 +88,55 @@ class Follow(models.Model):
         ]
 
 
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='favorites',
+        verbose_name="Подписчик",
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='favorited',
+        verbose_name="Рецепт",
+    )
+
+    class Meta:
+        verbose_name = "Избранное"
+        verbose_name_plural = "Избранные"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'], name='user_favorite_recipe'
+            )
+        ]
+
+
 class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     amount = models.PositiveIntegerField()
+
+
+class ShoppingCart(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='cart',
+        verbose_name="Подписчик",
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='in_cart',
+        verbose_name="Рецепт",
+    )
+
+    class Meta:
+        verbose_name = "Избранное"
+        verbose_name_plural = "Избранные"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'], name='user_cart_recipe'
+            )
+        ]

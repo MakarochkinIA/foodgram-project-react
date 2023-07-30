@@ -33,12 +33,10 @@ class FollowUserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     def get_is_subscribed(self, obj):
-        if 'subscribed' in self.context:
-            return self.context.get('subscribed')
         user = self.context.get('request').user
-        if user.is_authenticated:
-            return is_followed(user, obj)
-        return False
+        if not user.is_authenticated:
+            return False
+        return is_followed(user, obj)
 
     class Meta(UserSerializer.Meta):
         fields = UserSerializer.Meta.fields + ('is_subscribed',)
@@ -48,6 +46,13 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
+        fields = '__all__'
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Ingredient
         fields = '__all__'
 
 
@@ -88,12 +93,32 @@ class RecipeWatchSerializer(serializers.ModelSerializer):
         source='recipeingredient_set'
     )
     tags = TagSerializer(read_only=True, many=True)
+    text = serializers.CharField(read_only=True, source='description')
+    is_favorited = serializers.SerializerMethodField(read_only=True)
+    is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
+
+    def get_is_favorited(self, obj):
+        user = self.context.get('request').user
+        if not user.is_authenticated:
+            return False
+        if obj in Recipe.objects.filter(favorited__user=user):
+            return True
+        return False
+
+    def get_is_in_shopping_cart(self, obj):
+        user = self.context.get('request').user
+        if not user.is_authenticated:
+            return False
+        if obj in Recipe.objects.filter(in_cart__user=user):
+            return True
+        return False
 
     class Meta:
         model = Recipe
-        fields = '__all__'
+        exclude = ('description',)
 
 
+# TODO: validation
 class RecipeMakeSerializer(serializers.ModelSerializer):
     ingredients = IngredientMakeSerializer(many=True)
     tags = serializers.SlugRelatedField(
@@ -137,10 +162,13 @@ class RecipeMakeSerializer(serializers.ModelSerializer):
                 current_ingredient = Ingredient.objects.get(
                     id=ingredient.get('id')
                 )
-                RecipeIngredient.objects.create(
+                defaults = {
+                    'amount': ingredient.get('amount')
+                }
+                RecipeIngredient.objects.update_or_create(
                     recipe=instance,
                     ingredient=current_ingredient,
-                    amount=ingredient.get('amount')
+                    defaults=defaults
                 )
         if tags:
             instance.tags.set(tags)
@@ -150,7 +178,7 @@ class RecipeMakeSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         context = {
-            'subscribed': False
+            'request': self.context.get('request')
         }
         return RecipeWatchSerializer(
             context=context
@@ -160,3 +188,21 @@ class RecipeMakeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = '__all__'
         read_only_fields = ('author',)
+
+    def validate_name(self, value):
+        user = self.context.get('request').user
+        name = value
+        if Recipe.objects.filter(
+            author=user, name=name
+        ).exists():
+            raise serializers.ValidationError(
+                'Нельзя создать 2 рецепта с одинаковым именем'
+            )
+        return value
+
+
+class RecipeFavoriteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
