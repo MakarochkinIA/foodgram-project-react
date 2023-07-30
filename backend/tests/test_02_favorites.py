@@ -9,7 +9,7 @@ from recipes.models import Favorite, Recipe
 @pytest.mark.django_db()
 class Test02Favorite:
 
-    def test_01_subscribe(self, user, user_2, user_client, recipe):
+    def test_01_favorite(self, user, user_2, user_client, recipe):
         url = f'/api/v1/recipes/{recipe.id}/favorite/'
         client = APIClient()
         favorite_count = Favorite.objects.count()
@@ -45,7 +45,7 @@ class Test02Favorite:
             'Проверьте, что нельзя добавить в избранное второй раз'
         )
 
-    def test_02_unsubscribe(self, user, user_2, user_client, recipe):
+    def test_02_unfavorite(self, user, user_2, user_client, recipe):
         url = f'/api/v1/recipes/{recipe.id}/favorite/'
         Favorite.objects.create(
             user=user,

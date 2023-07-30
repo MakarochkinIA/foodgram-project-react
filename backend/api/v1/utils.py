@@ -1,4 +1,14 @@
+from io import BytesIO
+
 from django.contrib.auth import get_user_model
+from django.db.models import Q, Case, Value, When, Sum, F
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from reportlab.pdfgen import canvas
+from rest_framework import status
+from rest_framework.response import Response
+
+from recipes.models import Recipe, RecipeIngredient
 
 User = get_user_model()
 
@@ -7,3 +17,127 @@ def is_followed(user, follow):
     if follow in User.objects.filter(following__user=user):
         return True
     return False
+
+
+def custom_get_queryset(request):
+    user = request.user
+    tags = request.query_params.getlist('tags')
+    if user.is_anonymous:
+        return Recipe.objects.all().annotate(
+            is_favorited=Value('0')
+        ).annotate(is_in_shopping_cart=Value('0'))
+    recipe_list = Recipe.objects.filter(
+        favorited__user=user
+    ).values_list('id', flat=True)
+
+    shopping_cart_list = Recipe.objects.filter(
+        in_cart__user=user
+    ).values_list('id', flat=True)
+
+    queryset = Recipe.objects.all().annotate(is_favorited=Case(
+        When(
+            id__in=recipe_list,
+            then=Value('1')
+        ),
+        default=Value('0')
+    )).annotate(is_in_shopping_cart=Case(
+        When(
+            id__in=shopping_cart_list,
+            then=Value('1')
+        ),
+        default=Value('0')
+    ))
+
+    if tags:
+        queryset = queryset.filter(Q(tags__slug__in=tags)).distinct()
+    return queryset
+
+
+def create_delete_related_model(request, serializer, validate,
+                                model, related_model, id, field,
+                                **kwargs):
+    recipes_count = kwargs.get('recipes_count')
+    context = {
+        'request': request
+    }
+    if request.method == 'POST':
+        user = request.user
+        follow = get_object_or_404(model, id=id)
+        if recipes_count:
+            follow.recipes_count = len(follow.recipes.all())
+        if validate(user, follow):
+            data = {
+                'user': user,
+                field: follow
+            }
+            related_model.objects.create(
+                **data
+            )
+            return Response(
+                serializer(
+                    follow, context=context
+                ).data, status=status.HTTP_201_CREATED
+            )
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'DELETE':
+        user = request.user
+        follow = get_object_or_404(model, id=id)
+        data = {
+            'user': user,
+            field: follow
+        }
+        follow_obj = get_object_or_404(
+            related_model,
+            **data
+        )
+        follow_obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def get_pdf_data(request):
+    user = request.user
+    cart_list = Recipe.objects.filter(in_cart__user=user)
+    data = RecipeIngredient.objects.filter(
+        recipe__in=cart_list
+    ).values(
+        'ingredient__name',
+        unit=F('ingredient__measurement_unit__measurement_unit')
+    ).distinct().annotate(
+        amount=Sum('amount')
+    )
+    return data
+
+
+def dict_to_string(dictionary):
+    ingredient = dictionary.get('ingredient__name')
+    unit = dictionary.get('unit')
+    amount = dictionary.get('amount')
+    if ingredient and unit and amount:
+        return f'{ingredient} ({unit}) - {amount}'
+
+
+def export_pdf(request):
+    """Экспорт в pdf файл"""
+
+    data = get_pdf_data(request)
+    file_name = 'your_shopping_cart.pdf'
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer)
+
+    # Start writing the PDF here
+    for item in data:
+        string = dict_to_string(item)
+        if string:
+            p.drawString(100, 100, string)
+    # End writing
+
+    p.showPage()
+    p.save()
+
+    pdf = buffer.getvalue()
+    buffer.close()
+    response.write(pdf)
+    return response

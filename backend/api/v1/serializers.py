@@ -29,6 +29,13 @@ class Hex2NameColor(serializers.Field):
         return data
 
 
+class RecipeFavoriteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+
 class FollowUserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
@@ -40,6 +47,23 @@ class FollowUserSerializer(UserSerializer):
 
     class Meta(UserSerializer.Meta):
         fields = UserSerializer.Meta.fields + ('is_subscribed',)
+
+
+class FollowRecipeUserSerializer(FollowUserSerializer):
+    recipes = serializers.SerializerMethodField(read_only=True)
+    recipes_count = serializers.IntegerField()
+
+    def get_recipes(self, obj):
+        recipes_limit = self.context.get('recipes_limit')
+        recipes = Recipe.objects.filter(author=obj)[:recipes_limit]
+        if not recipes:
+            return []
+        return RecipeFavoriteSerializer(recipes, many=True).data
+
+    class Meta(FollowUserSerializer.Meta):
+        fields = FollowUserSerializer.Meta.fields + (
+            'recipes', 'recipes_count'
+        )
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -118,7 +142,6 @@ class RecipeWatchSerializer(serializers.ModelSerializer):
         exclude = ('description',)
 
 
-# TODO: validation
 class RecipeMakeSerializer(serializers.ModelSerializer):
     ingredients = IngredientMakeSerializer(many=True)
     tags = serializers.SlugRelatedField(
@@ -145,6 +168,7 @@ class RecipeMakeSerializer(serializers.ModelSerializer):
             )
         return recipe
 
+    # TODO: Рефакторинг
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
         instance.image = validated_data.get('image', instance.image)
@@ -199,10 +223,3 @@ class RecipeMakeSerializer(serializers.ModelSerializer):
                 'Нельзя создать 2 рецепта с одинаковым именем'
             )
         return value
-
-
-class RecipeFavoriteSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')

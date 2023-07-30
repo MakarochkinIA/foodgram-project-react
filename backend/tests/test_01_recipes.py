@@ -157,7 +157,7 @@ class Test01Recipes:
             ('/api/v1/recipes/?is_in_shopping_cart=1', 1),
             (f'/api/v1/recipes/?author={user_2.id}', 1),
             ('/api/v1/recipes/?tags=breakfast', 2),
-            ('/api/v1/recipes/?tags=lunch&tags=breakfast', 1),
+            ('/api/v1/recipes/?tags=lunch&tags=breakfast', 2),
             (f'/api/v1/recipes/?author={user_2.id}'
              '&tags=lunch&tags=breakfast&is_favorited=1'
              '&is_in_shopping_cart=1', 1),

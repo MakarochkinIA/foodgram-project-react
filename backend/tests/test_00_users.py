@@ -4,6 +4,8 @@ from rest_framework.test import APIClient
 import pytest
 
 from recipes.models import Follow
+from .utils import create_recipes
+
 
 IS_SUBSCRIBE_FIELD = 'is_subscribed'
 
@@ -115,7 +117,8 @@ class Test00IsSubscribedField:
             'Отписка не произошла'
         )
 
-    def test_04_subscriptions(self, user, user_2, user_client):
+    def test_03_subscriptions(self, user, user_2, user_client,
+                              tag, ingredient):
         url = '/api/v1/users/subscriptions/'
         Follow.objects.create(
             user=user,
@@ -135,4 +138,32 @@ class Test00IsSubscribedField:
         )
         assert data['results'], (
             'Проверьте ответ'
+        )
+        assert 'recipes' in data['results'][0], (
+            'Проверьте наличие поля recipes'
+        )
+        assert 'recipes_count' in data['results'][0], (
+            'Проверьте наличие поля recipes_count'
+        )
+
+        create_recipes(user_2, tag, ingredient)
+
+        response = user_client.get(url)
+
+        data = response.json()
+
+        assert len(data['results'][0]['recipes']) == 2, (
+            'Проверьте количество рецептов в ответе'
+        )
+
+        url = '/api/v1/users/subscriptions/?recipes_limit=1'
+        response = user_client.get(url)
+
+        data = response.json()
+
+        assert len(data['results'][0]['recipes']) == 1, (
+            'Проверьте фильтрацию по recipes_limit'
+        )
+        assert data['results'][0]['recipes_count'] == 2, (
+            'Проверьте поле recipes_count'
         )

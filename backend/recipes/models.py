@@ -15,7 +15,6 @@ class Unit(models.Model):
     measurement_unit = models.CharField(max_length=150)
 
 
-# TODO: uniquetogether
 class Ingredient(models.Model):
     name = models.CharField(max_length=150, unique=True)
     measurement_unit = models.ForeignKey(
@@ -24,6 +23,14 @@ class Ingredient(models.Model):
         related_name='ingredients',
         verbose_name="Мера измерения",
     )
+
+    class Meta:
+        constraints = [
+                models.UniqueConstraint(
+                    fields=['name', 'measurement_unit'],
+                    name='ingredient_measurement_unit'
+                )
+            ]
 
 
 class Recipe(models.Model):
