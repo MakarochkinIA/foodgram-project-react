@@ -14,7 +14,7 @@ IS_SUBSCRIBE_FIELD = 'is_subscribed'
 class Test01Recipes:
 
     def test_00_recipes_list_view(self, user_client, recipe):
-        url = '/api/v1/recipes/'
+        url = '/api/recipes/'
         client = APIClient()
         response = user_client.get(url)
         data = response.json()
@@ -39,7 +39,7 @@ class Test01Recipes:
         response_fields_check(data)
 
     def test_01_recipes_get_view(self, user_client, recipe):
-        url = f'/api/v1/recipes/{recipe.id}/'
+        url = f'/api/recipes/{recipe.id}/'
         client = APIClient()
         response = user_client.get(url)
         anon_response = client.get(url)
@@ -58,7 +58,7 @@ class Test01Recipes:
 
     def test_02_recipes_post_view(self, user_client,
                                   tag, ingredient):
-        url = '/api/v1/recipes/'
+        url = '/api/recipes/'
         recipe_data = RECIPE_DATA
         client = APIClient()
 
@@ -100,7 +100,7 @@ class Test01Recipes:
         )
 
     def test_03_recipes_patch_view(self, user_client, recipe, user_2_client):
-        url = f'/api/v1/recipes/{recipe.id}/'
+        url = f'/api/recipes/{recipe.id}/'
         recipe_data = RECIPE_DATA
         recipe_fields = [
             'ingredients',
@@ -152,13 +152,13 @@ class Test01Recipes:
 
     def test_03_recipes_filter(self, user_client, user_2, recipe, recipe_2):
         urls = [
-            ('/api/v1/recipes/', 2),
-            ('/api/v1/recipes/?is_favorited=1', 1),
-            ('/api/v1/recipes/?is_in_shopping_cart=1', 1),
-            (f'/api/v1/recipes/?author={user_2.id}', 1),
-            ('/api/v1/recipes/?tags=breakfast', 2),
-            ('/api/v1/recipes/?tags=lunch&tags=breakfast', 2),
-            (f'/api/v1/recipes/?author={user_2.id}'
+            ('/api/recipes/', 2),
+            ('/api/recipes/?is_favorited=1', 1),
+            ('/api/recipes/?is_in_shopping_cart=1', 1),
+            (f'/api/recipes/?author={user_2.id}', 1),
+            ('/api/recipes/?tags=breakfast', 2),
+            ('/api/recipes/?tags=lunch&tags=breakfast', 2),
+            (f'/api/recipes/?author={user_2.id}'
              '&tags=lunch&tags=breakfast&is_favorited=1'
              '&is_in_shopping_cart=1', 1),
         ]

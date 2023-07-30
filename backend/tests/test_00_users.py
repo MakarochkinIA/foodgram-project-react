@@ -14,7 +14,7 @@ IS_SUBSCRIBE_FIELD = 'is_subscribed'
 class Test00IsSubscribedField:
 
     def test_00_is_subscribed(self, user_client):
-        url = '/api/v1/users/'
+        url = '/api/users/'
         client = APIClient()
         response = user_client.get(url)
         data = response.json()
@@ -40,7 +40,7 @@ class Test00IsSubscribedField:
         )
 
     def test_01_subscribe(self, user, user_2, user_client):
-        url = f'/api/v1/users/{user_2.id}/subscribe/'
+        url = f'/api/users/{user_2.id}/subscribe/'
         client = APIClient()
         follow_count = Follow.objects.count()
         response = user_client.post(url)
@@ -77,7 +77,7 @@ class Test00IsSubscribedField:
             'Проверьте, что нельзя подписаться второй раз'
         )
 
-        url = f'/api/v1/users/{user.id}/subscribe/'
+        url = f'/api/users/{user.id}/subscribe/'
         follow_count = Follow.objects.count()
         response = user_client.post(url)
         follow_count_created = Follow.objects.count()
@@ -90,7 +90,7 @@ class Test00IsSubscribedField:
             'Проверьте, что нельзя подписаться на себя'
         )
 
-        url = f'/api/v1/users/{user_2.id}/'
+        url = f'/api/users/{user_2.id}/'
         response = user_client.get(url)
         data = response.json()
         assert data[IS_SUBSCRIBE_FIELD], (
@@ -98,7 +98,7 @@ class Test00IsSubscribedField:
         )
 
     def test_02_unsubscribe(self, user, user_2, user_client):
-        url = f'/api/v1/users/{user_2.id}/subscribe/'
+        url = f'/api/users/{user_2.id}/subscribe/'
         Follow.objects.create(
             user=user,
             following=user_2
@@ -119,7 +119,7 @@ class Test00IsSubscribedField:
 
     def test_03_subscriptions(self, user, user_2, user_client,
                               tag, ingredient):
-        url = '/api/v1/users/subscriptions/'
+        url = '/api/users/subscriptions/'
         Follow.objects.create(
             user=user,
             following=user_2
@@ -156,7 +156,7 @@ class Test00IsSubscribedField:
             'Проверьте количество рецептов в ответе'
         )
 
-        url = '/api/v1/users/subscriptions/?recipes_limit=1'
+        url = '/api/users/subscriptions/?recipes_limit=1'
         response = user_client.get(url)
 
         data = response.json()

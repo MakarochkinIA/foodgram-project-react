@@ -10,7 +10,7 @@ from recipes.models import Favorite, Recipe
 class Test02Favorite:
 
     def test_01_favorite(self, user, user_2, user_client, recipe):
-        url = f'/api/v1/recipes/{recipe.id}/favorite/'
+        url = f'/api/recipes/{recipe.id}/favorite/'
         client = APIClient()
         favorite_count = Favorite.objects.count()
         response = user_client.post(url)
@@ -46,7 +46,7 @@ class Test02Favorite:
         )
 
     def test_02_unfavorite(self, user, user_2, user_client, recipe):
-        url = f'/api/v1/recipes/{recipe.id}/favorite/'
+        url = f'/api/recipes/{recipe.id}/favorite/'
         Favorite.objects.create(
             user=user,
             recipe=recipe
