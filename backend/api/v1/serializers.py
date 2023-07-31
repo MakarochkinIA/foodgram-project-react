@@ -3,10 +3,11 @@ import webcolors
 
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
+from django.db import transaction
 from djoser.serializers import UserSerializer
 from rest_framework import serializers
 
-from .utils import is_followed
+from .utils import is_followed, create_recipe_ingredient
 from recipes.models import (
     Tag,
     Ingredient,
@@ -155,49 +156,31 @@ class RecipeMakeSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         user = self.context.get('request').user
-        recipe = Recipe.objects.create(author=user, **validated_data)
-        recipe.tags.set(tags)
-        for ingredient in ingredients:
-            current_ingredient = Ingredient.objects.get(
-                id=ingredient.get('id')
-            )
-            RecipeIngredient.objects.create(
-                recipe=recipe,
-                ingredient=current_ingredient,
-                amount=ingredient.get('amount')
-            )
+        with transaction.atomic():
+            recipe = Recipe.objects.create(author=user, **validated_data)
+            recipe.tags.set(tags)
+            recipe = create_recipe_ingredient(recipe, ingredients)
         return recipe
 
-    # TODO: Рефакторинг
     def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        instance.image = validated_data.get('image', instance.image)
-        instance.description = validated_data.get(
-            'description', instance.description
-        )
-        instance.cooking_time = validated_data.get(
-            'cooking_time', instance.cooking_time
-        )
-
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        if ingredients:
-            for ingredient in ingredients:
-                current_ingredient = Ingredient.objects.get(
-                    id=ingredient.get('id')
-                )
-                defaults = {
-                    'amount': ingredient.get('amount')
-                }
-                RecipeIngredient.objects.update_or_create(
-                    recipe=instance,
-                    ingredient=current_ingredient,
-                    defaults=defaults
-                )
-        if tags:
-            instance.tags.set(tags)
+        with transaction.atomic():
+            instance.name = validated_data.get('name', instance.name)
+            instance.image = validated_data.get('image', instance.image)
+            instance.description = validated_data.get(
+                'description', instance.description
+            )
+            instance.cooking_time = validated_data.get(
+                'cooking_time', instance.cooking_time
+            )
+            if ingredients:
+                RecipeIngredient.objects.filter(recipe=instance).delete()
+                instance = create_recipe_ingredient(instance, ingredients)
+            if tags:
+                instance.tags.set(tags)
 
-        instance.save()
+            instance.save()
         return instance
 
     def to_representation(self, instance):

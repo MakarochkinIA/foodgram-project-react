@@ -1,14 +1,13 @@
-from io import BytesIO
+import csv
 
 from django.contrib.auth import get_user_model
 from django.db.models import Q, Case, Value, When, Sum, F
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from reportlab.pdfgen import canvas
 from rest_framework import status
 from rest_framework.response import Response
 
-from recipes.models import Recipe, RecipeIngredient
+from recipes.models import Recipe, RecipeIngredient, Ingredient
 
 User = get_user_model()
 
@@ -94,7 +93,7 @@ def create_delete_related_model(request, serializer, validate,
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-def get_pdf_data(request):
+def get_csv_data(request):
     user = request.user
     cart_list = Recipe.objects.filter(in_cart__user=user)
     data = RecipeIngredient.objects.filter(
@@ -113,31 +112,43 @@ def dict_to_string(dictionary):
     unit = dictionary.get('unit')
     amount = dictionary.get('amount')
     if ingredient and unit and amount:
-        return f'{ingredient} ({unit}) - {amount}'
+        return [ingredient, unit, amount]
 
 
-def export_pdf(request):
-    """Экспорт в pdf файл"""
-
-    data = get_pdf_data(request)
-    file_name = 'your_shopping_cart.pdf'
-    response = HttpResponse(content_type='application/pdf')
+def export_csv(request):
+    data = get_csv_data(request)
+    file_name = 'your_shopping_cart.csv'
+    response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="{file_name}"'
-
-    buffer = BytesIO()
-    p = canvas.Canvas(buffer)
-
-    # Start writing the PDF here
+    fields = [
+        'ingredient',
+        'unit',
+        'amount'
+    ]
+    writer = csv.writer(response, delimiter=';')
+    writer.writerow(fields)
     for item in data:
-        string = dict_to_string(item)
-        if string:
-            p.drawString(100, 100, string)
-    # End writing
-
-    p.showPage()
-    p.save()
-
-    pdf = buffer.getvalue()
-    buffer.close()
-    response.write(pdf)
+        row = dict_to_string(item)
+        writer.writerow(row)
     return response
+
+
+def create_recipe_ingredient(recipe, ingredients):
+    id_list = []
+    amount_dict = {}
+    for ingredient in ingredients:
+        id = ingredient.get('id')
+        id_list.append(id)
+        amount_dict[id] = ingredient.get('amount')
+    ingredients = Ingredient.objects.filter(
+        id__in=id_list
+    )
+    objs = [
+        RecipeIngredient(
+            recipe=recipe,
+            ingredient=item,
+            amount=amount_dict[item.id]
+        ) for item in ingredients
+    ]
+    RecipeIngredient.objects.bulk_create(objs)
+    return recipe

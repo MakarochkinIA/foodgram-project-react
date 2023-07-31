@@ -1,5 +1,6 @@
 import django_filters
 from recipes.models import Recipe
+from rest_framework.filters import SearchFilter
 
 
 class RecipeFilterSet(django_filters.rest_framework.FilterSet):
@@ -20,3 +21,7 @@ class RecipeFilterSet(django_filters.rest_framework.FilterSet):
             'author'
         )
         model = Recipe
+
+
+class IngredientSearchFilter(SearchFilter):
+    search_param = 'name'

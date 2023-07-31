@@ -5,8 +5,21 @@ from .models import (
     Tag,
     Ingredient,
     Recipe,
-    Unit
+    Unit,
+    Favorite,
+    ShoppingCart,
+    RecipeIngredient
 )
+
+
+class RecipeIngredientInline(admin.TabularInline):
+    model = RecipeIngredient
+    extra = 1
+
+
+class RecipeTagInline(admin.TabularInline):
+    model = Recipe.tags.through
+    extra = 1
 
 
 @admin.register(Follow)
@@ -35,6 +48,7 @@ class IngredientAdmin(admin.ModelAdmin):
         'name',
         'measurement_unit',
     )
+    list_filter = ('name',)
 
 
 @admin.register(Unit)
@@ -47,11 +61,42 @@ class UnitAdmin(admin.ModelAdmin):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
+    inlines = [RecipeIngredientInline, RecipeTagInline]
     list_display = (
         'pk',
         'author',
         'name',
-        'image',
-        'description',
-        'cooking_time'
+        'in_favorite'
+    )
+    list_filter = ('author', 'name', 'tags')
+    empty_value_display = '-пусто-'
+    exclude = ["tags"]
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = (
+        'pk',
+        'user',
+        'recipe',
+    )
+    empty_value_display = '-пусто-'
+
+
+@admin.register(ShoppingCart)
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = (
+        'pk',
+        'user',
+        'recipe',
+    )
+
+
+@admin.register(RecipeIngredient)
+class RecipeIngredientAdmin(admin.ModelAdmin):
+    list_display = (
+        'pk',
+        'recipe',
+        'ingredient',
+        'amount'
     )

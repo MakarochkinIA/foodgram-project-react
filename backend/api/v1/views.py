@@ -6,7 +6,6 @@ from rest_framework.decorators import action
 from rest_framework import (
     viewsets,
     permissions,
-    filters,
 )
 
 from recipes.models import (
@@ -17,7 +16,7 @@ from recipes.models import (
     Tag,
     Ingredient
 )
-from .filters import RecipeFilterSet
+from .filters import RecipeFilterSet, IngredientSearchFilter
 from .pagination import CustomPageNumberPagination
 from .permissions import AuthorOrAuthenticatedOrReadOnly
 from .validation import validate_follow, validate_favorite, validate_cart
@@ -32,7 +31,7 @@ from .serializers import (
 from .utils import (
     custom_get_queryset,
     create_delete_related_model,
-    export_pdf
+    export_csv
 )
 
 User = get_user_model()
@@ -120,11 +119,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             field='recipe'
         )
 
-    # TODO:
     @action(["get"], detail=False,
             permission_classes=(permissions.IsAuthenticated,))
     def download_shopping_cart(self, request, *args, **kwargs):
-        return export_pdf(request)
+        return export_csv(request)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -137,5 +135,5 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = CustomPageNumberPagination
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (IngredientSearchFilter,)
     search_fields = ('^name', '$name')

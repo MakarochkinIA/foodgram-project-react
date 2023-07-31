@@ -153,3 +153,7 @@ DJOSER = {
 MEDIA = BASE_DIR / 'media/'
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+STATIC_URL = '/static/'
+
+STATIC_ROOT = BASE_DIR / 'collected_static'
