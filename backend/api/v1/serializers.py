@@ -7,13 +7,13 @@ from django.db import transaction
 from djoser.serializers import UserSerializer
 from rest_framework import serializers
 
-from .utils import is_followed, create_recipe_ingredient
 from recipes.models import (
     Tag,
     Ingredient,
     Recipe,
     RecipeIngredient
 )
+from .utils import is_followed, create_recipe_ingredient
 
 User = get_user_model()
 
