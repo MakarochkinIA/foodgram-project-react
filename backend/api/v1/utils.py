@@ -1,15 +1,13 @@
 import csv
 
-from django.contrib.auth import get_user_model
 from django.db.models import Q, Case, Value, When, Sum, F
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 
+from users.models import User
 from recipes.models import Recipe, RecipeIngredient, Ingredient
-
-User = get_user_model()
 
 
 def is_followed(user, follow):
@@ -152,3 +150,10 @@ def create_recipe_ingredient(recipe, ingredients):
     ]
     RecipeIngredient.objects.bulk_create(objs)
     return recipe
+
+
+def ids_from_list(array):
+    ids = []
+    for item in array:
+        ids.append(item.get('id'))
+    return ids

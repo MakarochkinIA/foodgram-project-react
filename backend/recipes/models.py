@@ -1,24 +1,24 @@
-from django.contrib import admin
-from django.contrib.auth import get_user_model
+from colorfield.fields import ColorField
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.conf import settings
 from django.db import models
 
-User = get_user_model()
+from api.v1.constants import COMMON_FIELD_LENGTH as LEN
+from users.models import User
 
 
 class Tag(models.Model):
     name = models.CharField(
-        max_length=150,
+        max_length=LEN,
         unique=True,
         verbose_name="Имя",
     )
-    color = models.CharField(
-        max_length=150,
+    color = ColorField(
         unique=True,
         verbose_name="Цвет",
     )
     slug = models.CharField(
-        max_length=150,
+        max_length=LEN,
         unique=True,
         verbose_name="Слаг",
     )
@@ -29,34 +29,17 @@ class Tag(models.Model):
     class Meta:
         verbose_name = "Тег"
         verbose_name_plural = "Теги"
-        ordering = ['-id']
-
-
-class Unit(models.Model):
-    measurement_unit = models.CharField(
-        max_length=150,
-        verbose_name="Единица измерения",
-    )
-
-    def __str__(self):
-        return self.measurement_unit
-
-    class Meta:
-        verbose_name = "Единица измерения"
-        verbose_name_plural = "Единицы измерения"
-        ordering = ['-id']
+        ordering = ['-slug']
 
 
 class Ingredient(models.Model):
     name = models.CharField(
-        max_length=150,
+        max_length=LEN,
         unique=True,
         verbose_name="Имя",
     )
-    measurement_unit = models.ForeignKey(
-        Unit,
-        on_delete=models.CASCADE,
-        related_name='ingredients',
+    measurement_unit = models.CharField(
+        max_length=LEN,
         verbose_name="Мера измерения",
     )
 
@@ -75,7 +58,7 @@ class Ingredient(models.Model):
         indexes = [
             models.Index(fields=["name"], name="name_idx"),
         ]
-        ordering = ['-id']
+        ordering = ['-name']
 
 
 class Recipe(models.Model):
@@ -85,14 +68,14 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name="Автор",
     )
-    name = models.CharField(max_length=150, verbose_name="Имя")
+    name = models.CharField(max_length=200, verbose_name="Имя")
     image = models.ImageField(
         upload_to=settings.MEDIA,
         null=True,
         default=None,
         verbose_name="Изображение",
     )
-    description = models.TextField(verbose_name="Описание")
+    text = models.TextField(verbose_name="Описание")
     ingredients = models.ManyToManyField(
         Ingredient,
         related_name='ingredient_recipe',
@@ -105,15 +88,15 @@ class Recipe(models.Model):
         verbose_name="Тег",
     )
     cooking_time = models.PositiveIntegerField(
+        validators=(
+            MinValueValidator(1, 'Минимальная время готовки - 1'),
+            MaxValueValidator(10, 'Максимальное время готовки - 43800 (месяц)')
+        ),
         verbose_name="Время приготовления",
     )
 
     def __str__(self):
         return self.name
-
-    @admin.display(description="Кол-во добавлений в избранное")
-    def in_favorite(self):
-        return self.favorited.count()
 
     class Meta:
         verbose_name = "Рецепт"
@@ -123,35 +106,7 @@ class Recipe(models.Model):
                 fields=['author', 'name'], name='author_recipe_name'
             )
         ]
-        ordering = ['-id']
-
-
-class Follow(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='follower',
-        verbose_name="Подписчик",
-    )
-    following = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='following',
-        verbose_name="Автор",
-    )
-
-    def __str__(self):
-        return f'{self.user}, {self.following}'
-
-    class Meta:
-        verbose_name = "Подписка"
-        verbose_name_plural = "Подписки"
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'following'], name='user_follow_author'
-            )
-        ]
-        ordering = ['-id']
+        ordering = ['-author__created']
 
 
 class Favorite(models.Model):
@@ -194,6 +149,10 @@ class RecipeIngredient(models.Model):
         verbose_name="Ингредиент"
     )
     amount = models.PositiveIntegerField(
+        validators=(
+            MinValueValidator(1, 'Минимальная количество - 1'),
+            MaxValueValidator(10, 'Максимальное количество - 100000')
+        ),
         verbose_name="Количество",
     )
 
@@ -203,7 +162,7 @@ class RecipeIngredient(models.Model):
     class Meta:
         verbose_name = "Рецепт-Ингредиент"
         verbose_name_plural = "Рецепт-Ингредиенты"
-        ordering = ['-id']
+        ordering = ['-recipe__author__created']
 
 
 class ShoppingCart(models.Model):

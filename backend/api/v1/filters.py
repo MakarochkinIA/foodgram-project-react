@@ -11,9 +11,6 @@ class RecipeFilterSet(django_filters.rest_framework.FilterSet):
     is_in_shopping_cart = django_filters.NumberFilter(
         field_name='is_in_shopping_cart'
     )
-    author = django_filters.NumberFilter(
-        field_name='author__id',
-    )
 
     class Meta:
         fields = (

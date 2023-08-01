@@ -22,12 +22,12 @@ def response_fields_check(data):
 def create_recipes(user_2, tag, ingredient):
     recipe_data = {
         'name': 'test_recipe_3',
-        'description': 'test_description',
+        'text': 'test_description',
         'cooking_time': 5
     }
     recipe_data_2 = {
         'name': 'test_recipe_4',
-        'description': 'test_description',
+        'text': 'test_description',
         'cooking_time': 5
     }
     recipe = Recipe.objects.create(

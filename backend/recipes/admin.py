@@ -1,15 +1,34 @@
 from django.contrib import admin
 
+from api.v1.constants import INGREDIENTS_NUMBER
 from .models import (
-    Follow,
     Tag,
     Ingredient,
     Recipe,
-    Unit,
     Favorite,
     ShoppingCart,
     RecipeIngredient
 )
+
+
+@admin.display(description="Кол-во добавлений в избранное")
+def in_favorite(self):
+    return self.favorited.count()
+
+
+@admin.display(description="Кол-во добавлений в избранное")
+def ingredient_list(self):
+    value = ''
+    ingredients = RecipeIngredient.objects.filter(
+        recipe=self
+    ).values_list('ingredient__name', flat=True)[:INGREDIENTS_NUMBER]
+    for ingredient in ingredients:
+        value += str(ingredient)
+    return value
+
+
+Recipe.in_favorite = in_favorite
+Recipe.ingredient_list = ingredient_list
 
 
 class RecipeIngredientInline(admin.TabularInline):
@@ -20,15 +39,6 @@ class RecipeIngredientInline(admin.TabularInline):
 class RecipeTagInline(admin.TabularInline):
     model = Recipe.tags.through
     extra = 1
-
-
-@admin.register(Follow)
-class FollowAdmin(admin.ModelAdmin):
-    list_display = (
-        'pk',
-        'user',
-        'following',
-    )
 
 
 @admin.register(Tag)
@@ -51,14 +61,6 @@ class IngredientAdmin(admin.ModelAdmin):
     list_filter = ('name',)
 
 
-@admin.register(Unit)
-class UnitAdmin(admin.ModelAdmin):
-    list_display = (
-        'pk',
-        'measurement_unit',
-    )
-
-
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     inlines = [RecipeIngredientInline, RecipeTagInline]
@@ -66,8 +68,10 @@ class RecipeAdmin(admin.ModelAdmin):
         'pk',
         'author',
         'name',
-        'in_favorite'
+        'in_favorite',
+        'ingredient_list'
     )
+    search_fields = ('name',)
     list_filter = ('author', 'name', 'tags')
     empty_value_display = '-пусто-'
     exclude = ["tags"]

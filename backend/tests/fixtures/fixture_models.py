@@ -1,9 +1,8 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 import pytest
 
-from ..constants import IMAGE_NAME, SMALL_GIF, TAG_DATA, UNIT_DATA
+from ..constants import IMAGE_NAME, SMALL_GIF, TAG_DATA, INGREDIENT_DATA
 from recipes.models import (
-    Unit,
     Ingredient,
     Recipe,
     Tag,
@@ -29,16 +28,9 @@ def tag_2():
 
 
 @pytest.fixture
-def unit():
-    return Unit.objects.create(**UNIT_DATA)
-
-
-@pytest.fixture
-def ingredient(unit):
-    name = 'apple'
+def ingredient():
     return Ingredient.objects.create(
-        name=name,
-        measurement_unit=unit
+        **INGREDIENT_DATA
     )
 
 
@@ -51,7 +43,7 @@ def recipe(user, ingredient, tag):
     )
     recipe_data = {
         'name': 'test_recipe',
-        'description': 'test_description',
+        'text': 'test_description',
         'cooking_time': 5
     }
     recipe = Recipe.objects.create(
@@ -77,7 +69,7 @@ def recipe_2(user, user_2, ingredient, tag, tag_2):
     )
     recipe_data = {
         'name': 'test_recipe_2',
-        'description': 'test_description',
+        'text': 'test_description',
         'cooking_time': 5
     }
     recipe = Recipe.objects.create(

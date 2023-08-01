@@ -14,13 +14,10 @@ TAG_DATA = {
     'slug': 'breakfast'
 }
 
-UNIT_DATA = {
-    'measurement_unit': 'кг'
-}
 
 INGREDIENT_DATA = {
-    'name': 'Breakfast',
-    'measurement_unit': 'breakfast'
+    'name': 'Апельсин',
+    'measurement_unit': 'кг'
 }
 
 RECIPE_DATA = {
@@ -34,7 +31,7 @@ RECIPE_DATA = {
 
     "name": "test_name",
     "cooking_time": 1,
-    "description": "test_description"
+    "text": "test_description"
 }
 
 IMAGE_NAME = 'small.gif'

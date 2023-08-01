@@ -3,7 +3,7 @@ from http import HTTPStatus
 from rest_framework.test import APIClient
 import pytest
 
-from recipes.models import Follow
+from users.models import Follow
 from .utils import create_recipes
 
 

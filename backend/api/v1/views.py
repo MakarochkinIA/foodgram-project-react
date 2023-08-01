@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
@@ -9,7 +8,6 @@ from rest_framework import (
 )
 
 from recipes.models import (
-    Follow,
     Recipe,
     Favorite,
     ShoppingCart,
@@ -21,8 +19,8 @@ from .pagination import CustomPageNumberPagination
 from .permissions import AuthorOrAuthenticatedOrReadOnly
 from .validation import validate_follow, validate_favorite, validate_cart
 from .serializers import (
-    RecipeMakeSerializer,
-    RecipeWatchSerializer,
+    RecipeCreateSerializer,
+    RecipeReadSerializer,
     RecipeFavoriteSerializer,
     TagSerializer,
     IngredientSerializer,
@@ -33,8 +31,7 @@ from .utils import (
     create_delete_related_model,
     export_csv
 )
-
-User = get_user_model()
+from users.models import User, Follow
 
 
 class NewUserViewSet(UserViewSet):
@@ -88,8 +85,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method in permissions.SAFE_METHODS:
-            return RecipeWatchSerializer
-        return RecipeMakeSerializer
+            return RecipeReadSerializer
+        return RecipeCreateSerializer
 
     @action(["post", "delete"], detail=True,
             permission_classes=(permissions.IsAuthenticated,))
