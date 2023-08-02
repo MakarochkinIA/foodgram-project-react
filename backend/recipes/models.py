@@ -109,34 +109,6 @@ class Recipe(models.Model):
         ordering = ['-author__created']
 
 
-class Favorite(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='favorites',
-        verbose_name="Подписчик",
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name='favorited',
-        verbose_name="Рецепт",
-    )
-
-    def __str__(self):
-        return f'{self.user}, {self.recipe}'
-
-    class Meta:
-        verbose_name = "Избранное"
-        verbose_name_plural = "Избранные"
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'], name='user_favorite_recipe'
-            )
-        ]
-        ordering = ['-id']
-
-
 class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
@@ -165,22 +137,26 @@ class RecipeIngredient(models.Model):
         ordering = ['-recipe__author__created']
 
 
-class ShoppingCart(models.Model):
+class AbstractFavoriteCart(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='cart',
-        verbose_name="Подписчик",
+        verbose_name="Пользователь",
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='in_cart',
         verbose_name="Рецепт",
     )
 
     def __str__(self):
         return f'{self.user}, {self.recipe}'
+
+    class Meta:
+        abstract = True
+
+
+class ShoppingCart(AbstractFavoriteCart):
 
     class Meta:
         verbose_name = "Корзина"
@@ -190,4 +166,17 @@ class ShoppingCart(models.Model):
                 fields=['user', 'recipe'], name='user_cart_recipe'
             )
         ]
-        ordering = ['-id']
+        ordering = ['-recipe__author__created']
+
+
+class Favorite(AbstractFavoriteCart):
+
+    class Meta:
+        verbose_name = "Избранное"
+        verbose_name_plural = "Избранные"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'], name='user_favorite_recipe'
+            )
+        ]
+        ordering = ['-recipe__author__created']

@@ -13,13 +13,13 @@ def validate_follow(user, follow):
 
 
 def validate_favorite(user, recipe):
-    if recipe in Recipe.objects.filter(favorited__user=user):
+    if recipe in Recipe.objects.filter(favorite__user=user):
         return False
     return True
 
 
 def validate_cart(user, recipe):
-    if recipe in Recipe.objects.filter(in_cart__user=user):
+    if recipe in Recipe.objects.filter(shoppingcart__user=user):
         return False
     return True
 

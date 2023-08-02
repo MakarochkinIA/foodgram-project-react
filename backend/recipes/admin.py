@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from api.v1.constants import INGREDIENTS_NUMBER
+from .forms import RequireOneFormSet
 from .models import (
     Tag,
     Ingredient,
@@ -16,15 +17,15 @@ def in_favorite(self):
     return self.favorited.count()
 
 
-@admin.display(description="Кол-во добавлений в избранное")
+@admin.display(description="Список ингредиентов")
 def ingredient_list(self):
-    value = ''
+    value = []
     ingredients = RecipeIngredient.objects.filter(
         recipe=self
     ).values_list('ingredient__name', flat=True)[:INGREDIENTS_NUMBER]
     for ingredient in ingredients:
-        value += str(ingredient)
-    return value
+        value.append(ingredient)
+    return (', ').join(value)
 
 
 Recipe.in_favorite = in_favorite
@@ -34,11 +35,13 @@ Recipe.ingredient_list = ingredient_list
 class RecipeIngredientInline(admin.TabularInline):
     model = RecipeIngredient
     extra = 1
+    formset = RequireOneFormSet
 
 
 class RecipeTagInline(admin.TabularInline):
     model = Recipe.tags.through
     extra = 1
+    formset = RequireOneFormSet
 
 
 @admin.register(Tag)

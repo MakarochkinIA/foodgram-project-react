@@ -24,11 +24,11 @@ def custom_get_queryset(request):
             is_favorited=Value('0')
         ).annotate(is_in_shopping_cart=Value('0'))
     recipe_list = Recipe.objects.filter(
-        favorited__user=user
+        favorite__user=user
     ).values_list('id', flat=True)
 
     shopping_cart_list = Recipe.objects.filter(
-        in_cart__user=user
+        shoppingcart__user=user
     ).values_list('id', flat=True)
 
     queryset = Recipe.objects.all().annotate(is_favorited=Case(
@@ -93,7 +93,7 @@ def create_delete_related_model(request, serializer, validate,
 
 def get_csv_data(request):
     user = request.user
-    cart_list = Recipe.objects.filter(in_cart__user=user)
+    cart_list = Recipe.objects.filter(shoppingcart__user=user)
     data = RecipeIngredient.objects.filter(
         recipe__in=cart_list
     ).values(

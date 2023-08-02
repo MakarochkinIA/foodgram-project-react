@@ -15,7 +15,7 @@ class Test02Favorite:
         favorite_count = Favorite.objects.count()
         response = user_client.post(url)
         anon_response = client.post(url)
-        favorite_list = Recipe.objects.filter(favorited__user=user)
+        favorite_list = Recipe.objects.filter(favorite__user=user)
         favorite_count_created = Favorite.objects.count()
 
         assert response.status_code != HTTPStatus.NOT_FOUND, (
