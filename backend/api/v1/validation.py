@@ -82,10 +82,10 @@ def validate_recipe(context, data):
     cooking_time = data.get('cooking_time')
     ingredients_id = ids_from_list(data.get('ingredients'))
     if (
-        validate_ingredients(ingredients_id) and
-        validate_tags(tags) and
-        validate_cooking_time(cooking_time) and
-        validate_name(context, name)
+        validate_ingredients(ingredients_id)
+        and validate_tags(tags)
+        and validate_cooking_time(cooking_time)
+        and validate_name(context, name)
     ):
         return data
 
