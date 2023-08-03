@@ -154,6 +154,7 @@ class AbstractFavoriteCart(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ('-recipe__author__created')
 
 
 class ShoppingCart(AbstractFavoriteCart):
@@ -166,7 +167,6 @@ class ShoppingCart(AbstractFavoriteCart):
                 fields=['user', 'recipe'], name='user_cart_recipe'
             )
         ]
-        ordering = ('-recipe__author__created',)
 
 
 class Favorite(AbstractFavoriteCart):
@@ -179,4 +179,3 @@ class Favorite(AbstractFavoriteCart):
                 fields=['user', 'recipe'], name='user_favorite_recipe'
             )
         ]
-        ordering = ('-recipe__author__created',)
