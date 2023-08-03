@@ -29,7 +29,7 @@ class Tag(models.Model):
     class Meta:
         verbose_name = "Тег"
         verbose_name_plural = "Теги"
-        ordering = ['-slug']
+        ordering = ('-slug',)
 
 
 class Ingredient(models.Model):
@@ -58,7 +58,7 @@ class Ingredient(models.Model):
         indexes = [
             models.Index(fields=["name"], name="name_idx"),
         ]
-        ordering = ['-name']
+        ordering = ('-name',)
 
 
 class Recipe(models.Model):
@@ -106,7 +106,7 @@ class Recipe(models.Model):
                 fields=['author', 'name'], name='author_recipe_name'
             )
         ]
-        ordering = ['-author__created']
+        ordering = ('-author__created',)
 
 
 class RecipeIngredient(models.Model):
@@ -134,7 +134,7 @@ class RecipeIngredient(models.Model):
     class Meta:
         verbose_name = "Рецепт-Ингредиент"
         verbose_name_plural = "Рецепт-Ингредиенты"
-        ordering = ['-recipe__author__created']
+        ordering = ('-recipe__author__created',)
 
 
 class AbstractFavoriteCart(models.Model):
@@ -166,7 +166,7 @@ class ShoppingCart(AbstractFavoriteCart):
                 fields=['user', 'recipe'], name='user_cart_recipe'
             )
         ]
-        ordering = ['-recipe__author__created']
+        ordering = ('-recipe__author__created',)
 
 
 class Favorite(AbstractFavoriteCart):
@@ -179,4 +179,4 @@ class Favorite(AbstractFavoriteCart):
                 fields=['user', 'recipe'], name='user_favorite_recipe'
             )
         ]
-        ordering = ['-recipe__author__created']
+        ordering = ('-recipe__author__created',)

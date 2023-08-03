@@ -37,7 +37,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
-        ordering = ['-created']
+        ordering = ('-created',)
 
 
 class Follow(models.Model):
@@ -65,4 +65,4 @@ class Follow(models.Model):
                 fields=['user', 'following'], name='user_follow_author'
             )
         ]
-        ordering = ['-user__created']
+        ordering = ('-user__created',)
