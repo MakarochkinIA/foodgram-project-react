@@ -54,14 +54,14 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ('name', 'color', 'slug')
+        fields = ('id', 'name', 'color', 'slug')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = ('name', 'measurement_unit')
+        fields = ('id', 'name', 'measurement_unit')
 
 
 class RecipeIngredientReadSerializer(serializers.ModelSerializer):
@@ -123,6 +123,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
+            'id',
             'author',
             'name',
             'image',

@@ -18,13 +18,12 @@ services:
       - static_volume:/backend_static
   frontend:
     image: makarochkinia/foodgram_frontend
-    command: cp -r /result_build/. /static/
     volumes:
-      - static:/app/result_build/
+      - ./frontend/:/app/result_build/
   gateway:
     image: makarochkinia/foodgram_gateway
     env_file: .env
     ports:
       - 8000:80
     volumes:
-      - static:/usr/share/nginx/html/
+      - ./frontend/build:/usr/share/nginx/html/

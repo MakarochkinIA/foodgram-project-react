@@ -70,7 +70,7 @@ class Recipe(models.Model):
     )
     name = models.CharField(max_length=200, verbose_name="Имя")
     image = models.ImageField(
-        upload_to=settings.MEDIA,
+        upload_to=settings.RECIPES,
         null=True,
         default=None,
         verbose_name="Изображение",
