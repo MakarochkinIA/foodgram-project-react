@@ -4,13 +4,20 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from recipes.models import (
-    Tag,
     Ingredient,
     Recipe,
-    RecipeIngredient
+    RecipeIngredient,
+    Tag
 )
-from .validation import validate_recipe, validate_ingredient_amount
-from .utils import is_followed, create_recipe_ingredient
+
+from .utils import (
+    create_recipe_ingredient,
+    is_followed
+)
+from .validation import (
+    validate_ingredient_amount,
+    validate_recipe
+)
 
 
 class RecipeFavoriteSerializer(serializers.ModelSerializer):

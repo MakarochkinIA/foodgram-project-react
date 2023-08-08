@@ -1,11 +1,12 @@
 from http import HTTPStatus
 
-from rest_framework.test import APIClient
 import pytest
+from rest_framework.test import APIClient
+
+from recipes.models import Recipe
 
 from .constants import RECIPE_DATA
 from .utils import response_fields_check
-from recipes.models import Recipe
 
 IS_SUBSCRIBE_FIELD = 'is_subscribed'
 

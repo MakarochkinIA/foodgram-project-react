@@ -1,7 +1,14 @@
 from rest_framework import serializers
 
-from recipes.models import Recipe, Ingredient
-from .utils import is_followed, ids_from_list
+from recipes.models import (
+    Ingredient,
+    Recipe
+)
+
+from .utils import (
+    ids_from_list,
+    is_followed
+)
 
 
 def validate_follow(user, follow):

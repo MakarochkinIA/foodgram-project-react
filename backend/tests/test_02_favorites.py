@@ -1,9 +1,12 @@
 from http import HTTPStatus
 
-from rest_framework.test import APIClient
 import pytest
+from rest_framework.test import APIClient
 
-from recipes.models import Favorite, Recipe
+from recipes.models import (
+    Favorite,
+    Recipe
+)
 
 
 @pytest.mark.django_db()

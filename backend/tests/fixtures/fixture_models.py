@@ -1,14 +1,20 @@
-from django.core.files.uploadedfile import SimpleUploadedFile
 import pytest
+from django.core.files.uploadedfile import SimpleUploadedFile
 
-from ..constants import IMAGE_NAME, SMALL_GIF, TAG_DATA, INGREDIENT_DATA
 from recipes.models import (
+    Favorite,
     Ingredient,
     Recipe,
-    Tag,
     RecipeIngredient,
-    Favorite,
-    ShoppingCart
+    ShoppingCart,
+    Tag
+)
+
+from ..constants import (
+    IMAGE_NAME,
+    INGREDIENT_DATA,
+    SMALL_GIF,
+    TAG_DATA
 )
 
 

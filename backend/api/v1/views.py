@@ -1,37 +1,48 @@
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from rest_framework.decorators import action
 from rest_framework import (
-    viewsets,
     permissions,
+    viewsets
 )
+from rest_framework.decorators import action
 
 from recipes.models import (
-    Recipe,
     Favorite,
+    Ingredient,
+    Recipe,
     ShoppingCart,
-    Tag,
-    Ingredient
+    Tag
 )
-from .filters import RecipeFilterSet, IngredientSearchFilter
+from users.models import (
+    Follow,
+    User
+)
+
+from .filters import (
+    IngredientSearchFilter,
+    RecipeFilterSet
+)
 from .pagination import CustomPageNumberPagination
 from .permissions import AuthorOrAuthenticatedOrReadOnly
-from .validation import validate_follow, validate_favorite, validate_cart
 from .serializers import (
-    RecipeCreateSerializer,
-    RecipeReadSerializer,
-    RecipeFavoriteSerializer,
-    TagSerializer,
+    FollowRecipeUserSerializer,
     IngredientSerializer,
-    FollowRecipeUserSerializer
+    RecipeCreateSerializer,
+    RecipeFavoriteSerializer,
+    RecipeReadSerializer,
+    TagSerializer
 )
 from .utils import (
-    custom_get_queryset,
     create_delete_related_model,
+    custom_get_queryset,
     export_csv
 )
-from users.models import User, Follow
+from .validation import (
+    validate_cart,
+    validate_favorite,
+    validate_follow
+)
 
 
 class NewUserViewSet(UserViewSet):

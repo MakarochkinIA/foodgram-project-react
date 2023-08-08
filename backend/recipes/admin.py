@@ -1,14 +1,15 @@
 from django.contrib import admin
 
 from api.v1.constants import INGREDIENTS_NUMBER
+
 from .forms import RequireOneFormSet
 from .models import (
-    Tag,
+    Favorite,
     Ingredient,
     Recipe,
-    Favorite,
+    RecipeIngredient,
     ShoppingCart,
-    RecipeIngredient
+    Tag
 )
 
 

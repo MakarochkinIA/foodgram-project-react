@@ -1,11 +1,11 @@
 from http import HTTPStatus
 
-from rest_framework.test import APIClient
 import pytest
+from rest_framework.test import APIClient
 
 from users.models import Follow
-from .utils import create_recipes
 
+from .utils import create_recipes
 
 IS_SUBSCRIBE_FIELD = 'is_subscribed'
 

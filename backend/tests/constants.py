@@ -1,6 +1,4 @@
-from recipes.models import (
-    Tag
-)
+from recipes.models import Tag
 
 IMAGE = (
     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywa"

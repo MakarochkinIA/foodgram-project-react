@@ -1,4 +1,7 @@
-from recipes.models import Recipe, RecipeIngredient
+from recipes.models import (
+    Recipe,
+    RecipeIngredient
+)
 
 
 def response_fields_check(data):
