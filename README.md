@@ -112,6 +112,10 @@ ip:
 ```
 администратор:
 
+email
+```
+admin@admin.com
+```
 логин 
 ```
 admin
