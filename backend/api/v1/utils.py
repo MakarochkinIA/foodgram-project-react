@@ -1,5 +1,7 @@
 import csv
+import json
 
+from django.conf import settings
 from django.db.models import (
     Case,
     F,
@@ -168,3 +170,13 @@ def ids_from_list(array):
     for item in array:
         ids.append(item.get('id'))
     return ids
+
+
+def load_data():
+    path = settings.BASE_DIR / 'initial_data/'
+    objs = []
+    with open(path / 'ingredients.json', encoding='utf-8') as js:
+        ingredients = json.load(js)
+        for ingredient in ingredients:
+            objs.append(Ingredient(**ingredient))
+    Ingredient.objects.bulk_create(objs)

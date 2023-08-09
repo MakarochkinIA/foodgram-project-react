@@ -108,10 +108,6 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     text = serializers.CharField(read_only=True)
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
-    name = serializers.RegexField(
-        r'/^(?=.*[a-zA-Zа-яёА-ЯЁ])([\w.@+-])+/u',
-        max_length=150
-    )
 
     def get_is_favorited(self, obj):
         user = self.context.get('request').user
@@ -156,6 +152,10 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     )
     image = Base64ImageField(required=False, allow_null=True)
     cooking_time = serializers.IntegerField()
+    name = serializers.RegexField(
+        r'^([\w.@+-])+',
+        max_length=150
+    )
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')

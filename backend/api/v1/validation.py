@@ -1,3 +1,5 @@
+import re
+
 from rest_framework import serializers
 
 from recipes.models import (
@@ -54,11 +56,16 @@ def validate_ingredients(ingredients):
 def validate_name(context, value):
     user = context.get('request').user
     name = value
-    if Recipe.objects.filter(
-        author=user, name=name
-    ).exists():
+    if context.get('request').method == 'POST':
+        if Recipe.objects.filter(
+            author=user, name=name
+        ).exists():
+            raise serializers.ValidationError(
+                'Нельзя создать 2 рецепта с одинаковым именем'
+            )
+    if not re.search('[a-zA-Zа-яёА-ЯЁ]', value):
         raise serializers.ValidationError(
-            'Нельзя создать 2 рецепта с одинаковым именем'
+            'В имени должна быть хотя бы 1 буква'
         )
     return True
 
